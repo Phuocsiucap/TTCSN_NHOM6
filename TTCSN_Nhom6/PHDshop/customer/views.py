@@ -91,36 +91,38 @@ class UpdateUserView(APIView):
 
 class LoginView(APIView):
     permission_classes = [AllowAny]  # Cho phép tất cả người dùng truy cập
-    def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        try:
-            user = User.objects.get(email=email)
-            if user.password == password:
-                return Response({"message": "Login successful!", "user": user}, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
     # def post(self, request):
     #     email = request.data.get("email")
     #     password = request.data.get("password")
     #     try:
     #         user = User.objects.get(email=email)
-    #         print("1")
+    #         serializer = UserSerializer(user)
     #         if user.password == password:
-    #             print(user)
-    #             if isinstance(user, User):  # Đảm bảo user là instance hợp lệ
-    #                 token, created = Token.objects.get_or_create(user=user)
-                
-    #                 return Response({"token": token.key, "user": {"id": user.id, "email": user.email}}, status=status.HTTP_200_OK)
-    #             else:
-    #                 return Response({"error": "Invalid user instance."}, status=status.HTTP_400_BAD_REQUEST)
+    #             return Response({"message": "Login successful!", "user": serializer.data}, status=status.HTTP_200_OK)
     #         else:
-    #             return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
-    
+    #             return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
     #     except User.DoesNotExist:
-    #         return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    #         return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+        try:
+            user = User.objects.get(email=email)
+            print("1")
+            if user.password == password:
+                print(user)
+                if isinstance(user, User): 
+                    print(4)
+                    token, created = Token.objects.get_or_create(user=user)
+                    print(3)
+                    return Response({"token": token.key, "user": {"id": user.id, "email": user.email}}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "Invalid user instance."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+    
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)

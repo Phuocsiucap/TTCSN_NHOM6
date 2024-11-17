@@ -47,8 +47,6 @@ lấy thông tin giỏ hàng(gửi token)
 
 
 THÊM VÀO GIỎI
-
-
 thêm vào giỏ cần gửi
 {
   "good_id": 10,

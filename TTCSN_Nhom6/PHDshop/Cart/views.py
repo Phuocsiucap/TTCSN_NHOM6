@@ -28,7 +28,39 @@ class CartAPI(APIView):
             return Response({"detail": "Giỏ hàng không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
 
 
+"""
+lấy thông tin giỏ hàng(gửi token)
+{
+  "cart": {
+        "id": 1,
+        "user": 5,
+        "note": "asdflaksd"
+  },
+  "cart_goods": [
+    {
+      "id": 1,
+      "cart": 1,
+      "good": {
+            #thong tin các thuoc tinh của good
+      }
+      "quantity": 2
+    },
+    {
+      "id": 2,
+      "cart": 1,
+      "good": {
+            #thong tin các thuoc tinh của good
+      }
+      "quantity": 1
+    }
+  ]
+}
+"""
+
+
 class CreateCartGoodAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    
     # Thêm sản phẩm vào giỏ hàng
     def post(self, request):
         cart = get_object_or_404(Cart, user=request.user)  # Lấy giỏ hàng của người dùng hiện tại
@@ -42,7 +74,7 @@ class CreateCartGoodAPI(APIView):
         good = get_object_or_404(Good, id=good_id)
 
         # Kiểm tra xem sản phẩm có còn trong kho không
-        if good.stock == 0:
+        if good.amount == 0:
             return Response({"detail": "Sản phẩm này đã hết hàng."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Kiểm tra xem sản phẩm đã có trong giỏ hàng của người dùng chưa
@@ -51,8 +83,7 @@ class CreateCartGoodAPI(APIView):
             # Nếu sản phẩm đã có trong giỏ, cập nhật số lượng
             cart_good.quantity += quantity
             cart_good.save()
-            serializer = CartGoodSerializer(cart_good)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"messege": "Thêm thành công"}, status=status.HTTP_200_OK)
         except CartGood.DoesNotExist:
             # Nếu sản phẩm chưa có trong giỏ, tạo mới
             serializer = CartGoodSerializer(data={'cart': cart.id, 'good': good.id, 'quantity': quantity})
@@ -60,6 +91,16 @@ class CreateCartGoodAPI(APIView):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+"""
+thêm vào giỏ cần gửi
+{
+  "good_id": 10,
+  "quantity": 2
+}
+kèm token
+
+"""
 
 
 class CartGoodAPI(APIView):
@@ -78,10 +119,10 @@ class CartGoodAPI(APIView):
 
         # Kiểm tra tồn kho trước khi thay đổi số lượng
         good = get_object_or_404(Good, id=good_id)
-        if good.stock == 0:  # Nếu sản phẩm đã hết hàng
+        if good.amount == 0:  # Nếu sản phẩm đã hết hàng
             return Response({"detail": "Sản phẩm này hiện đã hết hàng."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if good.stock < new_quantity:
+        if good.amount < new_quantity:
             return Response({"detail": "Sản phẩm này không đủ số lượng trong kho."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Nếu số lượng mới hợp lệ, cập nhật giỏ hàng
@@ -94,6 +135,15 @@ class CartGoodAPI(APIView):
         serializer = CartGoodSerializer(cart_good)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+"""
+CẬP NHẬT CẦN GỬI
+{
+  "good_id": 10,
+  "quantity": 2
+}
+kèm token
+
+"""
 
 class RemoveGoodFromCartAPI(APIView):
     permission_classes = [IsAuthenticated]
@@ -105,3 +155,7 @@ class RemoveGoodFromCartAPI(APIView):
         cart_good = get_object_or_404(CartGood, cart=cart, good_id=good_id)
         cart_good.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+'''
+gửi tokent
+'''

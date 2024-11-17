@@ -16,3 +16,10 @@ class CartGood(models.Model):
 
     class Meta:
         unique_together = ('cart', 'good') 
+
+
+"""
+
+
+
+"""

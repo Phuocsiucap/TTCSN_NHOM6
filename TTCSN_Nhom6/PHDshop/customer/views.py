@@ -108,7 +108,7 @@ class LoginView(APIView):
             if user.check_password(password):
                 # Lấy hoặc tạo token cho người dùng
                 token, created = Token.objects.get_or_create(user=user)
-                return Response({"token": token.key}, status=status.HTTP_200_OK)
+                return Response({"token": token.key, "uer": user}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:

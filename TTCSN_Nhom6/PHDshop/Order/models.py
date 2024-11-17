@@ -16,7 +16,7 @@ class Order(models.Model):
     total_amount = models.FloatField()
     shipping_address = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    admin = models.ForeignKey(Admin, on_delete=models.CASCADE)
+    admin = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True, blank=True)  # Admin có thể là null
 
 class OrderGood(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

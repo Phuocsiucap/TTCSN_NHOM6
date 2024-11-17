@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'customer',
     'good',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
     'Cart', 
@@ -147,3 +148,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Chỉ sử dụng TokenAuthentication
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Nếu người dùng chưa đăng nhập hoặc không có token hợp lệ (trong trường hợp sử dụng TokenAuthentication), họ sẽ không thể truy cập vào các API yêu cầu lớp quyền này
+    ]
+}

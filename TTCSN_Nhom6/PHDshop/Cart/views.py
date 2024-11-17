@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from good.models import Good
 from rest_framework.permissions import IsAuthenticated
 
+
 class CartAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -25,6 +26,7 @@ class CartAPI(APIView):
             })
         except Cart.DoesNotExist:
             return Response({"detail": "Giỏ hàng không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+
 
 class CreateCartGoodAPI(APIView):
     # Thêm sản phẩm vào giỏ hàng
@@ -59,6 +61,7 @@ class CreateCartGoodAPI(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CartGoodAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -90,6 +93,7 @@ class CartGoodAPI(APIView):
         cart_good.save()
         serializer = CartGoodSerializer(cart_good)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class RemoveGoodFromCartAPI(APIView):
     permission_classes = [IsAuthenticated]

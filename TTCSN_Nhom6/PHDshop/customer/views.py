@@ -3,25 +3,27 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from .models import User
 from .serializers import UserSerializer
 from django.shortcuts import get_object_or_404
 
 # class HomePage(APIView):
-#     # def get(self, request):
-#     #     data = {
-#     #         "title": "Welcome to My Home Page",
-#     #         "description": "This is the home page of my application."
-#     #     }
-#     #     return Response(data)
-#     def get(self, request):
-#         # Lấy tất cả người dùng
-#         users = User.objects.all()
-#         # Serialize dữ liệu người dùng
-#         user_serializer = UserSerializer(users, many=True)
-#         # Trả về danh sách người dùng dưới dạng JSON
-#         return Response(user_serializer.data, status=status.HTTP_200_OK)
+     # def get(self, request):
+     #     data = {
+     #         "title": "Welcome to My Home Page",
+     #         "description": "This is the home page of my application."
+     #     }
+     #     return Response(data)
+    # def get(self, request):
+    #     # Lấy tất cả người dùng
+    #     users = User.objects.all()
+    #     # Serialize dữ liệu người dùng
+    #     user_serializer = UserSerializer(users, many=True)
+    #     # Trả về danh sách người dùng dưới dạng JSON
+    #     return Response(user_serializer.data, status=status.HTTP_200_OK)
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]  # Đảm bảo rằng người dùng đã được xác thực
@@ -33,6 +35,8 @@ class UserProfileView(APIView):
     
 
 class CreateUserView(APIView):
+    permission_classes = [AllowAny]  # Cho phép tất cả người dùng truy cập
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -86,30 +90,37 @@ class UpdateUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    # def post(self, request):
-    #     email = request.data.get("email")
-    #     password = request.data.get("password")
-    #     try:
-    #         user = User.objects.get(email=email)
-    #         if user.password == password:
-    #             return Response({"message": "Login successful!", "user": user}, status=status.HTTP_200_OK)
-    #         else:
-    #             return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
-    #     except User.DoesNotExist:
-    #         return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
+    permission_classes = [AllowAny]  # Cho phép tất cả người dùng truy cập
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
         try:
             user = User.objects.get(email=email)
-            if user.check_password(password):
-                # Lấy hoặc tạo token cho người dùng
-                token, created = Token.objects.get_or_create(user=user)
-                return Response({"token": token.key, "uer": user}, status=status.HTTP_200_OK)
+            if user.password == password:
+                return Response({"message": "Login successful!", "user": user}, status=status.HTTP_200_OK)
             else:
-                return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+    # def post(self, request):
+    #     email = request.data.get("email")
+    #     password = request.data.get("password")
+    #     try:
+    #         user = User.objects.get(email=email)
+    #         print("1")
+    #         if user.password == password:
+    #             print(user)
+    #             if isinstance(user, User):  # Đảm bảo user là instance hợp lệ
+    #                 token, created = Token.objects.get_or_create(user=user)
+                
+    #                 return Response({"token": token.key, "user": {"id": user.id, "email": user.email}}, status=status.HTTP_200_OK)
+    #             else:
+    #                 return Response({"error": "Invalid user instance."}, status=status.HTTP_400_BAD_REQUEST)
+    #         else:
+    #             return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    #     except User.DoesNotExist:
+    #         return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)

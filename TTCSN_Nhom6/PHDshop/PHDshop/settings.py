@@ -160,3 +160,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',  # Nếu người dùng chưa đăng nhập hoặc không có token hợp lệ (trong trường hợp sử dụng TokenAuthentication), họ sẽ không thể truy cập vào các API yêu cầu lớp quyền này
     ]
 }
+
+
+
+

@@ -8,6 +8,7 @@ class User(models.Model):
     password = models.CharField(max_length=255)
     userType = models.CharField(max_length=50, default="Silver User", blank=True)
     loyaltyPoints = models.IntegerField(default=0, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         super(User, self).save(*args, **kwargs)

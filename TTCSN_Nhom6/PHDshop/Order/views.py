@@ -59,6 +59,7 @@ class CreateOrderAPI(APIView):
 
 # Lấy thông tin đơn hàng 
 class OrderDetailAPI(APIView):
+    print(3)
     permission_classes = [IsAuthenticated]  # Yêu cầu xác thực người dùng qua token
     
     def get(self, request, pk=None):

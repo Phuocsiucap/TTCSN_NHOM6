@@ -30,7 +30,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,6 +46,7 @@ INSTALLED_APPS = [
     'Cart', 
     'Order',
     'Models',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -56,10 +56,16 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  
+    # tạo phuong thức xác thục
+    'Models.views.JWTAuthenticationMiddleware',
 ]
+
+# Đảm bảo rằng bạn cấu hình đúng CORS nếu frontend và backend khác domain
+CORS_ALLOW_ALL_ORIGINS = True  # Chỉ nên sử dụng trong môi trường phát triển
+
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -151,16 +157,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
+# Cấu hình SimpleJWT (Optional, có thể thay đổi giá trị theo nhu cầu)
+from datetime import timedelta
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # Chỉ sử dụng TokenAuthentication
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Nếu người dùng chưa đăng nhập hoặc không có token hợp lệ (trong trường hợp sử dụng TokenAuthentication), họ sẽ không thể truy cập vào các API yêu cầu lớp quyền này
-    ]
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Thời gian sống của Access Token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Thời gian sống của Refresh Token
+    'ROTATE_REFRESH_TOKENS': True,  # Có thay thế Refresh Token mỗi khi cấp mới không
+    'BLACKLIST_AFTER_ROTATION': True,  # Hủy Refresh Token đã được sử dụng
 }
-
-
 
 

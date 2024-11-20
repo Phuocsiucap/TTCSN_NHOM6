@@ -5,15 +5,16 @@ from .models import Cart, CartGood
 from .serializers import CartSerializer, CartGoodSerializer
 from django.shortcuts import get_object_or_404
 from good.models import Good
-from rest_framework.permissions import IsAuthenticated
+
 
 
 class CartAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
+    
     # Lấy chi tiết giỏ hàng (mỗi người chỉ có một giỏ hàng)
     def get(self, request):
+        print("hello")
         try:
+
             cart = get_object_or_404(Cart, user=request.user)  # Lấy giỏ hàng của người dùng hiện tại
             cart_goods = CartGood.objects.filter(cart=cart)  # Lấy tất cả sản phẩm trong giỏ
             cart_serializer = CartSerializer(cart)  # Serialize giỏ hàng
@@ -59,7 +60,6 @@ lấy thông tin giỏ hàng(gửi token)
 
 
 class CreateCartGoodAPI(APIView):
-    permission_classes = [IsAuthenticated]
     
     # Thêm sản phẩm vào giỏ hàng
     def post(self, request):
@@ -104,7 +104,7 @@ kèm token
 
 
 class CartGoodAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    
 
     # Cập nhật số lượng sản phẩm trong giỏ hàng
     def patch(self, request):
@@ -146,7 +146,7 @@ kèm token
 """
 
 class RemoveGoodFromCartAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    
 
     # Xóa sản phẩm khỏi giỏ hàng
     def delete(self, request):
@@ -159,3 +159,69 @@ class RemoveGoodFromCartAPI(APIView):
 '''
 gửi tokent
 '''
+
+
+
+
+
+
+
+
+
+
+
+"""
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import AccessToken
+from django.contrib.auth.models import User
+from .models import Cart, Good, CartGood
+from .serializers import CartGoodSerializer
+
+class CreateCartGoodAPI(APIView):
+    
+    def post(self, request):
+        # Lấy token từ header
+        token = request.headers.get('Authorization')
+        if not token:
+            return Response({"detail": "Token không được cung cấp."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Kiểm tra token có hợp lệ không
+        try:
+            token = token.split(" ")[1]  # Tách "Bearer <token>"
+            access_token = AccessToken(token)
+            user = User.objects.get(id=access_token['user_id'])  # Lấy người dùng từ token
+        except Exception as e:
+            return Response({"detail": "Token không hợp lệ."}, status=status.HTTP_403_FORBIDDEN)
+
+        cart = get_object_or_404(Cart, user=user)  # Lấy giỏ hàng của người dùng hiện tại
+        good_id = request.data.get('good_id')  # ID của sản phẩm cần thêm vào giỏ
+        quantity = request.data.get('quantity', 1)  # Số lượng mặc định là 1 nếu không cung cấp
+
+        if quantity <= 0:
+            return Response({"detail": "Số lượng sản phẩm phải lớn hơn 0."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Lấy sản phẩm từ cơ sở dữ liệu
+        good = get_object_or_404(Good, id=good_id)
+
+        # Kiểm tra xem sản phẩm có còn trong kho không
+        if good.amount == 0:
+            return Response({"detail": "Sản phẩm này đã hết hàng."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Kiểm tra xem sản phẩm đã có trong giỏ hàng của người dùng chưa
+        try:
+            cart_good = CartGood.objects.get(cart=cart, good=good)
+            # Nếu sản phẩm đã có trong giỏ, cập nhật số lượng
+            cart_good.quantity += quantity
+            cart_good.save()
+            return Response({"messege": "Thêm thành công"}, status=status.HTTP_200_OK)
+        except CartGood.DoesNotExist:
+            # Nếu sản phẩm chưa có trong giỏ, tạo mới
+            serializer = CartGoodSerializer(data={'cart': cart.id, 'good': good.id, 'quantity': quantity})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+"""

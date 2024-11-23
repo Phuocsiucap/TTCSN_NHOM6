@@ -1,28 +1,73 @@
+from django.shortcuts import render
+
+# Create your views here.
 import jwt
-from django.conf import settings
-from django.utils.deprecation import MiddlewareMixin
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from datetime import datetime
+from django.http import JsonResponse
+from customer.models import User
+from customer.serializers import UserSerializer
+from PHDshop.settings import SECRET_KEY
+# Secret key dùng để giải mã JWT
 
-class JWTAuthenticationMiddleware(MiddlewareMixin):
-    def process_request(self, request):
-        auth_header = request.META.get('HTTP_AUTHORIZATION')
-        
+def verify_jwt(token):
+    try:
+        # Giải mã token và kiểm tra tính hợp lệ của nó
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+
+        # Kiểm tra xem token có hết hạn hay không
+        exp_timestamp = decoded_token.get('exp')
+        if exp_timestamp and exp_timestamp < datetime.now().timestamp():
+            return None  # Token đã hết hạn
+
+        # Nếu token hợp lệ, trả về thông tin của người dùng
+        return decoded_token
+
+    except jwt.ExpiredSignatureError:
+        print("Token has expired")
+        return None
+    except jwt.InvalidTokenError:
+        print("Invalid token")
+        return None
+
+
+def get_user_from_token(user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        return user
+    except User.DoesNotExist:
+        return None
+
+
+class JWTAuthenticationMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Lấy token từ header Authorization
+        print("say hi !")
+        auth_header = request.headers.get('Authorization')
+
         if auth_header:
-            try:
-                # Tách "Bearer" và token
-                prefix, token = auth_header.split(' ')
-                if prefix != 'Bearer':
-                    raise AuthenticationFailed('Invalid token prefix')
-                
-                # Xác thực token
-                jwt_auth = JWTAuthentication()
-                validated_token = jwt_auth.get_validated_token(token)
-                request.user = jwt_auth.get_user(validated_token)
-                print(request.user)
+            token = auth_header.split(' ')[1]  # Lấy token từ "Bearer <token>"
+            print(token)
 
-            except (jwt.ExpiredSignatureError, jwt.DecodeError, jwt.InvalidTokenError) as e:
-                raise AuthenticationFailed(f"JWT Authentication Failed: {e}")
-        
-        else:
-            request.user = None  # Nếu không có token, request.user sẽ là None
+            user_data = verify_jwt(token)
+            if user_data:
+                # Gán thông tin người dùng vào request để sử dụng sau này
+                user = get_user_from_token(user_data['user_id'])
+                if user:
+                    # serializer = UserSerializer(user)
+                    request.user = user
+                    print(request.user.fullName)
+                    return self.get_response(request)
+                else:
+                    print('sad')
+                    return JsonResponse({'detail': 'User not found'}, status=404)
+            else:
+                print("bad")
+                return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
+
+        # Nếu không có token hoặc token không hợp lệ, bỏ qua xác thực
+        return self.get_response(request)
+
+

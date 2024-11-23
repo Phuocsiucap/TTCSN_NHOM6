@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,7 +9,7 @@ import datetime
 
 # Đặt hàng (1 hoặc nhiều sản phẩm cùng lúc)
 class CreateOrderAPI(APIView):
-    permission_classes = [IsAuthenticated]  # Yêu cầu xác thực người dùng qua token
+    
     
     def post(self, request):
         user = request.user  # Lấy thông tin người dùng từ user đang đăng nhập
@@ -60,7 +60,7 @@ class CreateOrderAPI(APIView):
 # Lấy thông tin đơn hàng 
 class OrderDetailAPI(APIView):
     print(3)
-    permission_classes = [IsAuthenticated]  # Yêu cầu xác thực người dùng qua token
+    
     
     def get(self, request, pk=None):
         # Lấy thông tin đơn hàng dựa trên `pk`

@@ -16,8 +16,8 @@ login_url = "http://127.0.0.1:8888/api/user/login/"
 
 # Thông tin đăng nhập
 login_data = {
-    "email": "duynguyen@gmail.com",
-    "password": "123456"
+    "email": "hung@gmail.com",
+    "password": "12345678"
 }
 
 # Gửi yêu cầu POST để đăng nhập và lấy token
@@ -52,7 +52,7 @@ print("CSRF Token:", csrf_token)
 
 
 # URL để thêm sản phẩm vào giỏ hàng
-post_url = "http://127.0.0.1:8888/api/cart/"
+post_url = "http://127.0.0.1:8888/api/cart/add/"
 
 # Headers với CSRF token và Access Token
 headers = {
@@ -61,14 +61,15 @@ headers = {
     "X-CSRFToken": csrf_token,  # Thêm CSRF token vào đây
 }
 
-# # Dữ liệu gửi đến API
-# body = {
-#     "good_id": 10,
-#     "quantity": 2
-# }
+# Dữ liệu gửi đến API
+body = {
+   "good_id": 39,
+   "quantity": 1
+}
 
 # Gửi yêu cầu POST
-response = session.get(post_url, headers=headers)
+response = session.post(post_url, headers=headers, json=body)
+
 
 # Kiểm tra kết quả
 if response.status_code == 200:

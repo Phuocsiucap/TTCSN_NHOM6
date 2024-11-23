@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'corsheaders.middleware.CorsMiddleware',  
     # tạo phuong thức xác thục
-    'Models.views.JWTAuthenticationMiddleware',
+    'customer.middlewares.JWTAuthenticationMiddleware',
 ]
 
 # Đảm bảo rằng bạn cấu hình đúng CORS nếu frontend và backend khác domain
@@ -73,7 +73,7 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'PHDshop.urls'
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 TEMPLATES = [
     {

@@ -6,27 +6,32 @@ from .serializers import CartSerializer, CartGoodSerializer
 from django.shortcuts import get_object_or_404
 from good.models import Good
 
-
-
 class CartAPI(APIView):
-    
-    # Lấy chi tiết giỏ hàng (mỗi người chỉ có một giỏ hàng)
+
     def get(self, request):
-        print("hello")
         try:
+            # Lấy hoặc tạo giỏ hàng của người dùng
+            cart, created = Cart.objects.get_or_create(
+                user=request.user
+            )
 
-            cart = get_object_or_404(Cart, user=request.user)  # Lấy giỏ hàng của người dùng hiện tại
-            cart_goods = CartGood.objects.filter(cart=cart)  # Lấy tất cả sản phẩm trong giỏ
-            cart_serializer = CartSerializer(cart)  # Serialize giỏ hàng
-            cart_goods_serializer = CartGoodSerializer(cart_goods, many=True)  # Serialize các sản phẩm trong giỏ
+            # Lấy tất cả sản phẩm trong giỏ
+            cart_goods = CartGood.objects.filter(cart=cart)
 
-            # Trả về dữ liệu giỏ hàng cùng với các sản phẩm trong giỏ
+            # Serialize dữ liệu
+            cart_serializer = CartSerializer(cart)
+            cart_goods_serializer = CartGoodSerializer(cart_goods, many=True)
+
+            # Trả về dữ liệu giỏ hàng cùng với các sản phẩm
             return Response({
                 'cart': cart_serializer.data,
-                'cart_goods': cart_goods_serializer.data
-            })
-        except Cart.DoesNotExist:
-            return Response({"detail": "Giỏ hàng không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+                'cart_goods': cart_goods_serializer.data,
+                'is_new_cart': created  # Thêm thông tin xem giỏ hàng vừa được tạo mới hay không
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Xử lý lỗi bất ngờ
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """

@@ -38,17 +38,10 @@ else:
 
 import requests
 
-# URL để lấy CSRF token (thường là trang chính hoặc API nào đó)
-csrf_url = "http://127.0.0.1:8888/api/user/get_csrf/"
+
 
 # Gửi yêu cầu GET để lấy CSRF token
 session = requests.Session()  # Sử dụng session để duy trì cookie
-csrf_response = session.get(csrf_url)
-
-# Lấy token từ cookie
-csrf_token = csrf_response.cookies.get('csrftoken')
-
-print("CSRF Token:", csrf_token)
 
 
 # URL để thêm sản phẩm vào giỏ hàng
@@ -58,7 +51,6 @@ post_url = "http://127.0.0.1:8888/api/cart/add/"
 headers = {
     "Authorization": f"Bearer {access_token}",
     "Content-Type": "application/json",
-    "X-CSRFToken": csrf_token,  # Thêm CSRF token vào đây
 }
 
 # Dữ liệu gửi đến API
@@ -68,7 +60,7 @@ body = {
 }
 
 # Gửi yêu cầu POST
-response = session.post(post_url, headers=headers, json=body)
+response = session.post(post_url, headers=headers, json= body)
 
 
 # Kiểm tra kết quả

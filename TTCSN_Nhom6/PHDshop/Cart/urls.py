@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import CartAPI, CreateCartGoodAPI, CartGoodAPI, RemoveGoodFromCartAPI
+from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     # Lấy chi tiết giỏ hàng

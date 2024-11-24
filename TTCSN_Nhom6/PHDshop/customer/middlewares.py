@@ -44,12 +44,10 @@ class JWTAuthenticationMiddleware:
 
     def __call__(self, request):
         # Lấy token từ header Authorization
-        print("say hi !")
         auth_header = request.headers.get('Authorization')
 
         if auth_header:
             token = auth_header.split(' ')[1]  # Lấy token từ "Bearer <token>"
-            print(token)
 
             user_data = verify_jwt(token)
             if user_data:
@@ -58,7 +56,6 @@ class JWTAuthenticationMiddleware:
                 if user:
                     # serializer = UserSerializer(user)
                     request.user = user
-                    print(request.user.fullName)
                     return self.get_response(request)
                 else:
                     print('sad')
@@ -71,3 +68,10 @@ class JWTAuthenticationMiddleware:
         return self.get_response(request)
 
 
+class DisableCSRFMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        setattr(request, '_dont_enforce_csrf_checks', True)
+        return self.get_response(request)

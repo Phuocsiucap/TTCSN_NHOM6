@@ -59,6 +59,8 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  
     # tạo phuong thức xác thục
     'customer.middlewares.JWTAuthenticationMiddleware',
+    'customer.middlewares.DisableCSRFMiddleware',
+   
 ]
 
 # Đảm bảo rằng bạn cấu hình đúng CORS nếu frontend và backend khác domain
@@ -161,10 +163,32 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Thời gian sống của Access Token
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=150),  # Thời gian sống của Access Token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Thời gian sống của Refresh Token
     'ROTATE_REFRESH_TOKENS': True,  # Có thay thế Refresh Token mỗi khi cấp mới không
     'BLACKLIST_AFTER_ROTATION': True,  # Hủy Refresh Token đã được sử dụng
 }
 
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # Your React app URL
+]
+
+CORS_ALLOW_CREDENTIALS = True  # Allows sending cookies with requests
+
+
+
+# Cấu hình chi tiết hơn cho CORS
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
+]

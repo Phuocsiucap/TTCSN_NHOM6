@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import CreateOrderAPI, OrderDetailAPI
+from .views import CreateOrderAPI, OrderDetailAPI,OrderListView,CancelOrderAPI
 
 urlpatterns = [
     path('', CreateOrderAPI.as_view(), name='place-order'),  # Đặt hàng
-    path('order_detail/', OrderDetailAPI.as_view(), name='order-detail'),  # Xem chi tiết đơn hàng
-    path('order_list/', OrderDetailAPI.as_view(), name='order-list'),  # Xem danh sách đơn hàng của người dùng
+    path('order_list/', OrderListView.as_view(), name='order-list'),  # Xem danh sách đơn hàng của người dùng
+    path('order_detail/<int:id>/', OrderDetailAPI.as_view(), name='order-detail'),  # Xem chi tiết đơn hàng
+    path('cancel_order/<int:id>/',CancelOrderAPI.as_view(), name='order-cancel')
 ]
 
 """

@@ -180,13 +180,13 @@ CORS_ALLOW_CREDENTIALS = True  # Allows sending cookies with requests
 
 # Cấu hình chi tiết hơn cho CORS
 CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE',
-    'OPTIONS',
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
-
 CORS_ALLOW_HEADERS = [
     'content-type',
     'authorization',

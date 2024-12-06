@@ -50,6 +50,7 @@ class UpdateUserView(APIView):
          #Dữ liệu người dùng đã đăng nhập từ request.user
         user = request.user
         print("bad")
+        print(user)
         serializer = UserSerializer(user, data=request.data, partial=True)   #partial=True cho phép cập nhật một phần
 
         if serializer.is_valid():

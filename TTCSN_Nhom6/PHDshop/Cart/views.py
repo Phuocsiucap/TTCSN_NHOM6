@@ -68,6 +68,7 @@ class CreateCartGoodAPI(APIView):
     
     # Thêm sản phẩm vào giỏ hàng
     def post(self, request):
+        print(request.data)
         cart = get_object_or_404(Cart, user=request.user)  # Lấy giỏ hàng của người dùng hiện tại
         good_id = request.data.get('good_id')  # ID của sản phẩm cần thêm vào giỏ
         quantity = request.data.get('quantity', 1)  # Số lượng mặc định là 1 nếu không cung cấp
@@ -112,18 +113,21 @@ class CartGoodAPI(APIView):
     
 
     # Cập nhật số lượng sản phẩm trong giỏ hàng
-    def patch(self, request):
-        cart = get_object_or_404(Cart, user=request.user)
-        good_id = request.data.get('good_id')
+    def patch(self, request,cart_good_id):
+        # cart = get_object_or_404(Cart, user=request.user)
+        cart_good = get_object_or_404(CartGood, id=cart_good_id, cart__user=request.user)
+        print(request.data)
+        # good_id = request.data.get('good_id')
         new_quantity = request.data.get('quantity')
 
-        if not good_id or new_quantity is None:
-            return Response({"detail": "Cần cung cấp mã sản phẩm và số lượng."}, status=status.HTTP_400_BAD_REQUEST)
+        # if not good_id or new_quantity is None:
+        #     return Response({"detail": "Cần cung cấp mã sản phẩm và số lượng."}, status=status.HTTP_400_BAD_REQUEST)
 
-        cart_good = get_object_or_404(CartGood, cart=cart, good_id=good_id)
+        # cart_good = get_object_or_404(CartGood, cart=cart, good_id=good_id)
 
         # Kiểm tra tồn kho trước khi thay đổi số lượng
-        good = get_object_or_404(Good, id=good_id)
+        # good = get_object_or_404(Good, id=good_id)
+        good=cart_good.good
         if good.amount == 0:  # Nếu sản phẩm đã hết hàng
             return Response({"detail": "Sản phẩm này hiện đã hết hàng."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -142,7 +146,7 @@ class CartGoodAPI(APIView):
 
 """
 CẬP NHẬT CẦN GỬI
-{
+
   "good_id": 10,
   "quantity": 2
 }
@@ -154,12 +158,23 @@ class RemoveGoodFromCartAPI(APIView):
     
 
     # Xóa sản phẩm khỏi giỏ hàng
-    def delete(self, request):
-        cart = get_object_or_404(Cart, user=request.user)
-        good_id = request.data.get('good_id')
-        cart_good = get_object_or_404(CartGood, cart=cart, good_id=good_id)
+    # def delete(self, request):
+    #     cart = get_object_or_404(Cart, user=request.user)
+    #     good_id = request.data.get('good_id')
+    #     print(request)
+    #     cart_good = get_object_or_404(CartGood, cart=cart, good_id=good_id)
+    #     cart_good.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    # class RemoveGoodFromCartAPI(APIView):
+    def delete(self, request, cart_good_id):
+        # Lấy thông tin sản phẩm trong giỏ hàng dựa trên ID và người dùng
+        cart_good = get_object_or_404(CartGood, id=cart_good_id, cart__user=request.user)
+
+        # Xóa sản phẩm
         cart_good.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Trả về phản hồi thành công
+        return Response({"message": "Cart item removed successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 '''
 gửi tokent

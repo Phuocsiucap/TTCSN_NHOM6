@@ -1,4 +1,5 @@
 from django.db import models
+from rest_framework import serializers
 class Brand(models.Model):
     brandName = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -17,3 +18,7 @@ class Good(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
 
+class GoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Good
+        fields = ['id', 'goodName', 'specifications', 'image', 'color', 'amount', 'price', 'category', 'brand']

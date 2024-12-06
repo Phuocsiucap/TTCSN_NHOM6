@@ -9,6 +9,7 @@ class Cart(models.Model):
     def __str__(self):
         return f"Cart {self.id} for {self.user}"
 
+
 class CartGood(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_Goods', default=None)
     good = models.ForeignKey(Good, on_delete=models.CASCADE, related_name='cart_Goods')
@@ -18,8 +19,5 @@ class CartGood(models.Model):
         unique_together = ('cart', 'good') 
 
 
-"""
 
 
-
-"""

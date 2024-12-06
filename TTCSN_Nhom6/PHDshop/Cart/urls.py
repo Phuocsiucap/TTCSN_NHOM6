@@ -10,10 +10,12 @@ urlpatterns = [
     path('add/', CreateCartGoodAPI.as_view(), name='cart-add-good'),
 
     # Cập nhật số lượng sản phẩm trong giỏ hàng
-    path('update/', CartGoodAPI.as_view(), name='cart-update-good'),
+    # path('update/', CartGoodAPI.as_view(), name='cart-update-good'),
+    path('update/<int:cart_good_id>/', CartGoodAPI.as_view(), name='cart-update-good'),
 
     # Xóa sản phẩm khỏi giỏ hàng
-    path('remove/', RemoveGoodFromCartAPI.as_view(), name='cart-remove-good'),
+    # path('remove/', RemoveGoodFromCartAPI.as_view(), name='cart-remove-good'),
+    path('remove/<int:cart_good_id>/', RemoveGoodFromCartAPI.as_view(), name='cart-remove-good'),
 ]
 
 

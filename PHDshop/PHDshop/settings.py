@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'Order',
     'Models',
     'rest_framework_simplejwt',
+    'Voucher',
 ]
 
 MIDDLEWARE = [

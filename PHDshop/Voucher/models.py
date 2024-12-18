@@ -6,7 +6,8 @@ class Voucher(models.Model):
     discount_percentage = models.FloatField()  # Phần trăm giảm giá
     min_order_value = models.IntegerField()  # Đơn tối thiểu
     points_required = models.IntegerField()  # Điểm yêu cầu để đổi
-    is_active = models.BooleanField(default=True)  # Trạng thái voucher, có thể sử dụng nhiều lần
+    quantity = models.IntegerField(default=0)  # Số lượng voucher còn lại
+    is_active = models.BooleanField(default=True)  # Trạng thái voucher
 
     def __str__(self):
         return f"{self.title} - {self.discount_percentage}% giảm giá"
@@ -39,4 +40,4 @@ class VoucherUser(models.Model):
         unique_together = ('user', 'voucher')  # Mỗi user chỉ có thể đổi mỗi voucher 1 lần
 
     def __str__(self):
-        return f"{self.user.username} redeemed {self.voucher.title} on {self.redeemed_at}"
+        return f"{self.user.fullName} redeemed {self.voucher.title} on {self.redeemed_at}"

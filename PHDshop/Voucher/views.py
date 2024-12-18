@@ -20,11 +20,10 @@ class RedeemVoucherView(APIView):
     """
     API để đổi voucher sử dụng điểm của người dùng.
     """
-    def post(self, request):
+    def post(self, request, voucher_id):
         user = request.user  # Lấy người dùng từ request
         points = user.loyaltyPoints  # Điểm của người dùng
-        voucher_id = request.data.get('voucher_id')  # ID voucher cần đổi
-        quantity = request.data.get('quantity', 1)  # Số lượng voucher cần đổi
+        quantity = 1
 
         try:
             voucher = Voucher.objects.get(id=voucher_id)

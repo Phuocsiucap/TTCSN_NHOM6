@@ -85,11 +85,14 @@ class LoginView(APIView):
         except User.DoesNotExist:
             return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
         
-from django.views.decorators.csrf import csrf_exempt
+
+
+
+#   FOR POINT
 import json 
 from django.http import JsonResponse
 
-@csrf_exempt
+
 def submit_score(request, username):
     if request.method == 'POST':
         try:
@@ -116,3 +119,85 @@ def submit_score(request, username):
             return JsonResponse({"error": f"User with email '{username}' not found"}, status=404)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+# FOR ADDRESS
+from .models import Address
+from .serializers import AddressSerializer
+
+
+class AddressList(APIView):
+
+    def get(self, request):
+        """
+        Retrieve all addresses for the authenticated user.
+        """
+        addresses = Address.objects.filter(user=request.user)
+        serializer = AddressSerializer(addresses, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Create a new address for the authenticated user.
+        """
+        data = request.data
+        data['user'] = request.user.id  # Set the user to the current logged-in user
+        
+        # Nếu địa chỉ mới được đánh dấu là mặc định, cần đảm bảo không có địa chỉ nào khác là mặc định
+        if data.get('is_default', False):
+            # Cập nhật tất cả địa chỉ của người dùng thành không phải mặc định
+            Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+
+        serializer = AddressSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class AddressDetail(APIView):
+
+    def get_object(self, ID, user):
+        try:
+            return Address.objects.get(id=ID, user=user)
+        except Address.DoesNotExist:
+            return None
+
+    def get(self, request, id):
+        """
+        Retrieve an address by ID for the authenticated user.
+        """
+        address = self.get_object(id, request.user)
+        if address:
+            serializer = AddressSerializer(address)
+            return Response(serializer.data)
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, id):
+        """
+        Update an address by ID for the authenticated user.
+        """
+        address = Address.objects.get(id=id)
+        if address:
+            # Nếu người dùng cập nhật để đặt làm mặc định, cần phải cập nhật tất cả các địa chỉ cũ thành không phải mặc định
+            if request.data.get('is_default', False):
+                print(2)
+                # Cập nhật tất cả các địa chỉ của người dùng thành không phải mặc định
+                Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+            serializer = AddressSerializer(address, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                print(serializer.errors)  # Log lỗi
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+
+    def delete(self, request, id):
+        """
+        Delete an address by ID for the authenticated user.
+        """
+        address = self.get_object(id, request.user)
+        if address:
+            address.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)

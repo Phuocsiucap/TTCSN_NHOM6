@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Address
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,3 +14,18 @@ class UserSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
             instance.password = validated_data['password']
         return super(UserSerializer, self).update(instance, validated_data)
+    
+class AddressSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)  # Chỉ đọc, không yêu cầu trong payload
+
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        """
+        Tùy chỉnh phản hồi để bao gồm thông tin chi tiết của user.
+        """
+        representation = super().to_representation(instance)
+        representation['user'] = UserSerializer(instance.user).data  # Serialize thông tin chi tiết của user
+        return representation

@@ -11,7 +11,6 @@ from Cart.models import CartGood
 # Đặt hàng (1 hoặc nhiều sản phẩm cùng lúc)
 class CreateOrderAPI(APIView):
     
-    
     def post(self, request):
         user = request.user  # Lấy thông tin người dùng từ user đang đăng nhập
         print(request.data)
@@ -93,12 +92,14 @@ class OrderDetailAPI(APIView):
         }
         print(response_data)
         return Response(response_data, status=status.HTTP_200_OK)
+    
 class OrderListView(APIView):
     def get(self, request):
         # Lấy tất cả đơn hàng của người dùng hiện tại
         orders = Order.objects.filter(user=request.user)
         order_serializer = OrderSerializer(orders, many=True)
         return Response(order_serializer.data, status=status.HTTP_200_OK)
+    
 class CancelOrderAPI(APIView):
     def post(self, request, id):
         # Lấy thông tin đơn hàng

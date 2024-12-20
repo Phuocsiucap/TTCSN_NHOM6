@@ -170,7 +170,6 @@ class AddressDetail(APIView):
             serializer = AddressSerializer(address)
             return Response(serializer.data)
         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-
     def put(self, request, id):
         """
         Update an address by ID for the authenticated user.
@@ -179,9 +178,12 @@ class AddressDetail(APIView):
         if address:
             # Nếu người dùng cập nhật để đặt làm mặc định, cần phải cập nhật tất cả các địa chỉ cũ thành không phải mặc định
             if request.data.get('is_default', False):
-                print(2)
                 # Cập nhật tất cả các địa chỉ của người dùng thành không phải mặc định
                 Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+            
+            # Thêm 'user' vào dữ liệu trước khi truyền vào serializer
+            request.data['user'] = request.user.id  # Đảm bảo user được gán cho địa chỉ
+
             serializer = AddressSerializer(address, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -189,8 +191,9 @@ class AddressDetail(APIView):
             else:
                 print(serializer.errors)  # Log lỗi
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+
 
     def delete(self, request, id):
         """

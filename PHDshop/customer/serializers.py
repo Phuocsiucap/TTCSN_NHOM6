@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
         return super(UserSerializer, self).update(instance, validated_data)
     
 class AddressSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)  # Chỉ đọc, không yêu cầu trong payload
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())  # Chỉ đọc, không yêu cầu trong payload
 
     class Meta:
         model = Address

@@ -68,7 +68,6 @@ class CreateCartGoodAPI(APIView):
     
     # Thêm sản phẩm vào giỏ hàng
     def post(self, request):
-        print(request.data)
         cart = get_object_or_404(Cart, user=request.user)  # Lấy giỏ hàng của người dùng hiện tại
         good_id = request.data.get('good_id')  # ID của sản phẩm cần thêm vào giỏ
         quantity = request.data.get('quantity', 1)  # Số lượng mặc định là 1 nếu không cung cấp

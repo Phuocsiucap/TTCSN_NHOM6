@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'Models',
     'rest_framework_simplejwt',
     'Voucher',
+    'Admin'
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ]
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Sử dụng token authentication
+    ],
 }
 
 ROOT_URLCONF = 'PHDshop.urls'
@@ -193,3 +201,5 @@ CORS_ALLOW_HEADERS = [
     'authorization',
     'x-csrftoken',
 ]
+
+

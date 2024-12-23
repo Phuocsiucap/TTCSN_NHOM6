@@ -45,7 +45,7 @@ class RedeemVoucherView(APIView):
 
         # Giảm điểm và cập nhật số lượng voucher
         user.loyaltyPoints -= total_points_required
-        voucher.quantity -= quantity
+        # voucher.quantity -= quantity
         user.save()
         voucher.save()
 
@@ -81,4 +81,28 @@ class RedeemedVouchersView(APIView):
         serializer = VoucherUserSerializer(redeemed_vouchers, many=True)
 
         return Response(serializer.data)
+    
+    def patch(self, request, id):
+        """
+        API cập nhật trạng thái voucher của người dùng khi sử dụng
+        """
+        try:
+            voucher = Voucher.objects.get(id=id)
+            if voucher.quantity <= 0:
+                return Response({"detail": "Voucher đã hết"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+            # Pass the data and the voucher instance to the serializer
+            serializer = VoucherUserSerializer(user = request.user.id , data=request.data)
+            
+            if serializer.is_valid():
+                voucher.quantity -= 1
+                voucher.save()
+                serializer.save()
+
+                return Response({"detail": "Cập nhật thành công"}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Voucher.DoesNotExist:
+            return Response({"detail": "Voucher không tồn tại"}, status=status.HTTP_404_NOT_FOUND)

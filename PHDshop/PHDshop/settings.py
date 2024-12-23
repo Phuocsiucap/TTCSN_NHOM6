@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django_filters',
     'Cart', 
     'Order',
-    'Models',
     'rest_framework_simplejwt',
     'Voucher',
     'Admin'

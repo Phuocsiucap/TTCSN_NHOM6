@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from .models import Order, OrderGood
+from Voucher.models import Voucher
 
 class OrderSerializer(serializers.ModelSerializer):
+    voucher = serializers.PrimaryKeyRelatedField(queryset=Voucher.objects.all(), write_only=True)  # Chỉ cho phép gửi ID voucher
     class Meta:
         model = Order
-        fields = ['order_id', 'purchase_date', 'shipping_status', 'total_amount', 'shipping_address', 'user', 'admin']
-
+        fields = '__all__'
 class OrderGoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderGood

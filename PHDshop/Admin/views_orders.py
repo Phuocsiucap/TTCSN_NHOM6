@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from Order.models import Order, OrderGood
+from good.models import Good
 from Order.serializers import OrderSerializer, OrderGoodSerializer
 
 # Quản lý đơn hàng
@@ -70,6 +71,7 @@ class OrderGoodListView(APIView):
     def get(self, request, order_pk):
         order_goods = OrderGood.objects.filter(order__pk=order_pk)
         serializer = OrderGoodSerializer(order_goods, many=True)
+        # goods_in_order = Good.objects.filter().distinct()
         return Response(serializer.data)
 
     # Thêm sản phẩm vào đơn hàng

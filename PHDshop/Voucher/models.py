@@ -32,9 +32,6 @@ class VoucherUser(models.Model):
     # Trạng thái voucher (Có thể có thêm logic để sử dụng)
     status = models.CharField(max_length=20, choices=[('redeemed', 'Redeemed'), ('expired', 'Expired')], default='redeemed')
 
-    # Thông tin về số tiền thanh toán, nếu có
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
     # Đảm bảo mỗi người dùng chỉ có thể đổi một voucher duy nhất
     class Meta:
         unique_together = ('user', 'voucher')  # Mỗi user chỉ có thể đổi mỗi voucher 1 lần

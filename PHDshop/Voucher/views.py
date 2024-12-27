@@ -15,7 +15,6 @@ class VoucherListView(APIView):
         serializer = VoucherSerializer(vouchers, many=True)
         return Response(serializer.data)
 
-
 class RedeemVoucherView(APIView):
     """
     API để đổi voucher sử dụng điểm của người dùng.
@@ -55,7 +54,7 @@ class RedeemVoucherView(APIView):
             voucher=voucher,
             points_used=total_points_required,
             quantity=quantity,
-            status="redeemed"
+            status="Redeemed"
         )
 
         # Trả về thông tin voucher đã đổi
@@ -69,10 +68,13 @@ class RedeemedVouchersView(APIView):
     """
     def get(self, request):
         user = request.user  # Lấy người dùng từ request
-
-        # Lấy các voucher đã đổi của người dùng
-        redeemed_vouchers = VoucherUser.objects.filter(user=user, status='redeemed')
-
+        status_filter = request.query_params.get('status', None)
+        if status_filter: 
+            # Lọc các voucher đã đổi của người dùng theo status
+            redeemed_vouchers = VoucherUser.objects.filter(user=user, status=status_filter)
+        else: 
+            # Lọc tất cả các voucher đã đổi của người dùng
+            redeemed_vouchers = VoucherUser.objects.filter(user=user)
         # Kiểm tra nếu không có voucher đã đổi
         if not redeemed_vouchers.exists():
             return Response({"detail": "No redeemed vouchers found."}, status=status.HTTP_404_NOT_FOUND)
@@ -81,28 +83,3 @@ class RedeemedVouchersView(APIView):
         serializer = VoucherUserSerializer(redeemed_vouchers, many=True)
 
         return Response(serializer.data)
-    
-    def patch(self, request, id):
-        """
-        API cập nhật trạng thái voucher của người dùng khi sử dụng
-        """
-        try:
-            voucher = Voucher.objects.get(id=id)
-            if voucher.quantity <= 0:
-                return Response({"detail": "Voucher đã hết"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-            # Pass the data and the voucher instance to the serializer
-            serializer = VoucherUserSerializer(user = request.user.id , data=request.data)
-            
-            if serializer.is_valid():
-                voucher.quantity -= 1
-                voucher.save()
-                serializer.save()
-
-                return Response({"detail": "Cập nhật thành công"}, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        except Voucher.DoesNotExist:
-            return Response({"detail": "Voucher không tồn tại"}, status=status.HTTP_404_NOT_FOUND)

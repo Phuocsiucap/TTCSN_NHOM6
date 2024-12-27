@@ -22,10 +22,10 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = '__all__'
 
-    def to_representation(self, instance):
-        """
-        Tùy chỉnh phản hồi để bao gồm thông tin chi tiết của user.
-        """
-        representation = super().to_representation(instance)
-        representation['user'] = UserSerializer(instance.user).data  # Serialize thông tin chi tiết của user
-        return representation
+    # def to_representation(self, instance):
+    #     """
+    #     Tùy chỉnh phản hồi để bao gồm thông tin chi tiết của user.
+    #     """
+    #     representation = super().to_representation(instance)
+    #     # representation['user'] = UserSerializer(instance.user).data  # Serialize thông tin chi tiết của user
+    #     return representation

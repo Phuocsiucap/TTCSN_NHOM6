@@ -26,7 +26,6 @@ class CartAPI(APIView):
             return Response({
                 'cart': cart_serializer.data,
                 'cart_goods': cart_goods_serializer.data,
-                'is_new_cart': created  # Thêm thông tin xem giỏ hàng vừa được tạo mới hay không
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -126,17 +125,17 @@ class CartGoodAPI(APIView):
 
         # Kiểm tra tồn kho trước khi thay đổi số lượng
         # good = get_object_or_404(Good, id=good_id)
-        good=cart_good.good
-        if good.amount == 0:  # Nếu sản phẩm đã hết hàng
-            return Response({"detail": "Sản phẩm này hiện đã hết hàng."}, status=status.HTTP_400_BAD_REQUEST)
+        # good=cart_good.good
+        # if good.amount == 0:  # Nếu sản phẩm đã hết hàng
+        #     return Response({"detail": "Sản phẩm này hiện đã hết hàng."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if good.amount < new_quantity:
-            return Response({"detail": "Sản phẩm này không đủ số lượng trong kho."}, status=status.HTTP_400_BAD_REQUEST)
+        # if good.amount < new_quantity:
+        #     return Response({"detail": "Sản phẩm này không đủ số lượng trong kho."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Nếu số lượng mới hợp lệ, cập nhật giỏ hàng
-        if new_quantity <= 0:
-            cart_good.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        # if new_quantity <= 0:
+        #     cart_good.delete()
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
 
         cart_good.quantity = new_quantity
         cart_good.save()
@@ -155,16 +154,6 @@ kèm token
 
 class RemoveGoodFromCartAPI(APIView):
     
-
-    # Xóa sản phẩm khỏi giỏ hàng
-    # def delete(self, request):
-    #     cart = get_object_or_404(Cart, user=request.user)
-    #     good_id = request.data.get('good_id')
-    #     print(request)
-    #     cart_good = get_object_or_404(CartGood, cart=cart, good_id=good_id)
-    #     cart_good.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-    # class RemoveGoodFromCartAPI(APIView):
     def delete(self, request, cart_good_id):
         # Lấy thông tin sản phẩm trong giỏ hàng dựa trên ID và người dùng
         cart_good = get_object_or_404(CartGood, id=cart_good_id, cart__user=request.user)

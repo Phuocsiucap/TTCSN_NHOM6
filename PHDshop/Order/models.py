@@ -18,7 +18,7 @@ class Order(models.Model):
     shipping_address = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     admin = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True, blank=True)  # Admin có thể là null
-    # voucher = models.ForeignKey(Voucher, on_delete=models.SET_NULL, null=True, blank=True) 
+    voucher = models.ForeignKey(Voucher, on_delete=models.SET_NULL, null=True, blank=True) 
 
 class OrderGood(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

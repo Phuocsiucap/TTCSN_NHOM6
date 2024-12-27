@@ -8,7 +8,7 @@ class VoucherSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class VoucherUserSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)  # Chỉ cho phép gửi ID người dùng
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())  # Chỉ cho phép gửi ID người dùng
     voucher = serializers.PrimaryKeyRelatedField(queryset=Voucher.objects.all(), write_only=True)  # Chỉ cho phép gửi ID voucher
 
     class Meta:
@@ -20,6 +20,6 @@ class VoucherUserSerializer(serializers.ModelSerializer):
         Tùy chỉnh phản hồi để bao gồm thông tin chi tiết của user và voucher.
         """
         representation = super().to_representation(instance)
-        representation['user'] = UserSerializer(instance.user).data  # Serialize thông tin chi tiết của user
+        # representation['user'] = UserSerializer(instance.user).data  # Serialize thông tin chi tiết của user
         representation['voucher'] = VoucherSerializer(instance.voucher).data  # Serialize thông tin chi tiết của voucher
         return representation

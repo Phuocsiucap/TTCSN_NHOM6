@@ -8,12 +8,13 @@ class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     purchase_date = models.DateField(auto_now_add=True)  # Đặt mặc định là ngày hiện tại
     SHIPPING_STATUS_CHOICES = [
-        ('Đang xử lý', 'Đang xử lý'),
-        ('Shipped', 'Shipped'),
-        ('Delivered', 'Delivered'),
-        ('Cancelled', 'Cancelled'),
+        ('Chờ xác nhận', 'Chờ xác nhận'),
+        ('Đã Giao', 'Đã Giao'),
+        ('Đã xác nhận', 'Đã xác nhận'),
+        ('Đang Giao', 'Đang Giao'),
+        ('Đã Hủy', 'Đã Hủy'),
     ]
-    shipping_status = models.CharField(max_length=50, choices=SHIPPING_STATUS_CHOICES, default='Đang xử lý')
+    shipping_status = models.CharField(max_length=50, choices=SHIPPING_STATUS_CHOICES, default='Chờ xác nhận')
     total_amount = models.FloatField()
     shipping_address = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

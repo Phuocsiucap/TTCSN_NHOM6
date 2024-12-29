@@ -4,7 +4,7 @@ from .views import AdminLoginView
 from .views_users import AdminUserManagementView
 from .views_goods import *
 from .views_orders import *
-
+from .views_orders import MonthlyRevenueAPIView, WeeklyRevenueAPIView
 urlpatterns = [
     path('login/', AdminLoginView.as_view(), name='admin-login'),
 
@@ -25,4 +25,6 @@ urlpatterns = [
     # Quản lý sản phẩm trong đơn hàng
     path('orders/<int:order_pk>/goods/', OrderGoodListView.as_view(), name='order-good-list'),  # Lấy danh sách sản phẩm trong đơn hàng
     path('orders/<int:order_pk>/goods/add/', OrderGoodListView.as_view(), name='order-good-add'),  # Thêm sản phẩm vào đơn hàng
+    path('revenue/monthly/', MonthlyRevenueAPIView.as_view(), name='monthly-revenue'),
+    path('revenue/weekly/', WeeklyRevenueAPIView.as_view(), name='weekly-revenue'),
 ]

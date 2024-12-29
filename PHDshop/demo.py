@@ -1,4 +1,4 @@
-import requests
+import requests 
 
 # URL của API backend để đăng nhập và nhận token
 login_url = "http://127.0.0.1:8888/api/admin/login/"
@@ -19,11 +19,10 @@ if response.status_code == 200:
     print("Admin Access Token:", access_token)
 else:
     print("Error:", response.status_code)
-    print(response.json())
     exit()
 
 # Gửi yêu cầu GET để lấy danh sách người dùng
-admin_api_url = "http://127.0.0.1:8888/api/admin/users/"  # Đảm bảo URL API đúng
+admin_api_url = "http://127.0.0.1:8888/api/admin/revenue/monthly/"  # Đảm bảo URL API đúng
 
 # Headers với Token của Admin
 headers = {
@@ -35,8 +34,8 @@ headers = {
 response = requests.get(admin_api_url, headers=headers)
 
 # Kiểm tra kết quả
-if response.status_code == 200:
+if response.status_code :
     print("Danh sách người dùng:", response.json())
 else:
     print("Lỗi:", response.status_code)
-    print(response.json())
+

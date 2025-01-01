@@ -6,7 +6,7 @@ class GoodSerializer(serializers.ModelSerializer):
     #     max_digits=10, decimal_places=2, read_only=True
     # )
     # image = serializers.ImageField(required=False)  # Xử lý trường ảnh
-
+    image = serializers.ImageField(required=False)
     class Meta:
         model = Good
         fields = [

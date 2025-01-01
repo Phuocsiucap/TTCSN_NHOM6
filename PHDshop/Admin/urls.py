@@ -1,7 +1,7 @@
 # urls.py
 from django.urls import path
 from .views import AdminLoginView
-from .views_users import AdminUserManagementView
+from .views_users import AdminUserManagementView, AdminUserTotal 
 from .views_goods import *
 from .views_orders import *
 from .views_orders import MonthlyRevenueAPIView, WeeklyRevenueAPIView
@@ -13,7 +13,6 @@ urlpatterns = [
     path('users/<int:pk>/', AdminUserManagementView.as_view(), name='admin-user-update'),  # PUT - Cập nhật người dùng (toàn bộ)
     path('users/<int:pk>/partial/', AdminUserManagementView.as_view(), name='admin-user-partial-update'),  # PATCH - Cập nhật một phần thông tin người dùng
     path('users/<int:pk>/delete/', AdminUserManagementView.as_view(), name='admin-user-delete'),  # DELETE - Xóa người dùng
-
 
     path('goods/', GoodListView.as_view(), name='good-list'),  # Lấy danh sách và tạo mới
     path('goods/<int:pk>/', GoodDetailView.as_view(), name='good-detail'),  # Xem, cập nhật, xóa sản phẩm theo ID
@@ -29,5 +28,9 @@ urlpatterns = [
     
     path('revenue/monthly/', MonthlyRevenueAPIView.as_view(), name='monthly-revenue'),
     path('revenue/weekly/', WeeklyRevenueAPIView.as_view(), name='weekly-revenue'),
+
+    path('total-users/', AdminUserTotal.as_view(), name='admin-total-users'),  # Đường dẫn cho API
+    path('delivered-orders-count/', DeliveredOrdersCountAPIView.as_view(), name='delivered-orders-count'),
+    path('today-revenue/', TodayRevenueAPIView.as_view(), name='today-revenue'),
 
 ]

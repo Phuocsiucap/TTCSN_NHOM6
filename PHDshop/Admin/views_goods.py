@@ -80,49 +80,37 @@ class GoodListView(APIView):
         # Trả về thông tin sản phẩm với mã trạng thái 200 OK
         return Response(serializer.data, status=status.HTTP_200_OK)
         
-
+from django.shortcuts import get_object_or_404
 class GoodDetailView(APIView):
     authentication_classes = [JWTAuthentication]  # Sử dụng JWTAuthentication
     permission_classes = [IsAuthenticated]  # Kiểm tra nếu người dùng đã đăng nhập
 
     # Lấy thông tin sản phẩm
     def get(self, request, pk):
-        try:
-            good = Good.objects.get(pk=pk)
-            serializer = GoodSerializer(good)
-            return Response(serializer.data)
-        except Good.DoesNotExist:
-            return Response({"detail": "Good not found."}, status=status.HTTP_404_NOT_FOUND)
+        good = get_object_or_404(Good, pk=pk)
+        serializer = GoodSerializer(good)
+        return Response(serializer.data)
 
     # Cập nhật thông tin sản phẩm
     def put(self, request, pk):
-        try:
-            good = Good.objects.get(pk=pk)
-            serializer = GoodSerializer(good, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Good.DoesNotExist:
-            return Response({"detail": "Good not found."}, status=status.HTTP_404_NOT_FOUND)
-
+        print("Request data:", request.data)  # In dữ liệu yêu cầu ra console
+        good = get_object_or_404(Good, pk=pk)
+        serializer = GoodSerializer(good, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     # Cập nhật một phần thông tin sản phẩm
     def patch(self, request, pk):
-        try:
-            good = Good.objects.get(pk=pk)
-            serializer = GoodSerializer(good, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Good.DoesNotExist:
-            return Response({"detail": "Good not found."}, status=status.HTTP_404_NOT_FOUND)
+        good = get_object_or_404(Good, pk=pk)
+        serializer = GoodSerializer(good, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Xóa sản phẩm
     def delete(self, request, pk):
-        try:
-            good = Good.objects.get(pk=pk)
-            good.delete()
-            return Response({"detail": "Good deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-        except Good.DoesNotExist:
-            return Response({"detail": "Good not found."}, status=status.HTTP_404_NOT_FOUND)
+        good = get_object_or_404(Good, pk=pk)
+        good.delete()
+        return Response({"detail": "Good deleted successfully."}, status=status.HTTP_204_NO_CONTENT)

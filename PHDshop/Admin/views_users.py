@@ -10,19 +10,19 @@ class AdminUserManagementView(APIView):
     authentication_classes = [JWTAuthentication]  # Sử dụng JWTAuthentication
     permission_classes = [IsAuthenticated]  # Kiểm tra nếu người dùng đã đăng nhập
 
-    # Lấy danh sách người dùng
+    
+    # Lấy danh sách hoặc số lượng người dùng
     def get(self, request):
-        # Kiểm tra nếu người dùng có quyền Admin
-        
-
-        users = CustomUser.objects.all()
-        serializer = CustomUserSerializer(users, many=True)
-        return Response(serializer.data)
+        # if 'count' in request.query_params:  # Kiểm tra query parameter
+        #     user_count = CustomUser.objects.count()
+        #     return Response({'total_users': user_count}, status=status.HTTP_200_OK)
+        # else:
+            users = CustomUser.objects.all()
+            serializer = CustomUserSerializer(users, many=True)
+            return Response(serializer.data)
 
     # Thêm người dùng mới
     def post(self, request):
-        
-
         serializer = CustomUserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -31,8 +31,6 @@ class AdminUserManagementView(APIView):
 
     # Sửa thông tin người dùng
     def put(self, request, pk):
-        
-
         try:
             user = CustomUser.objects.get(pk=pk)
             serializer = CustomUserSerializer(user, data=request.data)
@@ -45,8 +43,6 @@ class AdminUserManagementView(APIView):
 
     # Cập nhật một phần thông tin người dùng
     def patch(self, request, pk):
-        
-
         try:
             user = CustomUser.objects.get(pk=pk)
             serializer = CustomUserSerializer(user, data=request.data, partial=True)
@@ -59,11 +55,20 @@ class AdminUserManagementView(APIView):
 
     # Xóa người dùng
     def delete(self, request, pk):
-        
-
         try:
             user = CustomUser.objects.get(pk=pk)
             user.delete()
             return Response({"detail": "User deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
         except CustomUser.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+class AdminUserTotal(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):  # Đảm bảo phương thức GET có mặt ở đây
+        total_users = CustomUser.objects.count()
+        return Response({"total_users": total_users}, status=status.HTTP_200_OK)
+    

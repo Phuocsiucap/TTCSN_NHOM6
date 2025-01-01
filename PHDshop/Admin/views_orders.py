@@ -159,3 +159,42 @@ class WeeklyRevenueAPIView(APIView):
             'labels': ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
             'revenue': daily_revenues,  # Doanh thu cho từng ngày trong tuần
         })
+class DeliveredOrdersCountAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        # Lọc đơn hàng có trạng thái 'Delivered'
+        delivered_orders_count = Order.objects.filter(shipping_status='Delivered').count()
+
+        # Trả về số lượng đơn hàng đã giao thành công
+        return Response({
+            'delivered_orders_count': delivered_orders_count
+        }, status=status.HTTP_200_OK)
+
+
+class TodayRevenueAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]  # Chỉ admin mới được phép truy cập
+
+    def get(self, request):
+        # Lấy ngày hôm nay
+        today = timezone.now().date()  # Lấy ngày hiện tại mà không có giờ
+        
+        # Lọc các đơn hàng có trạng thái 'Delivered' và ngày mua là hôm nay
+        orders = Order.objects.filter(
+            shipping_status='Delivered',
+            purchase_date__day=today.day,
+            purchase_date__month=today.month,
+            purchase_date__year=today.year,
+            
+        )
+
+        # Tính tổng doanh thu (tổng số tiền từ các đơn hàng đã giao)
+        total_revenue = orders.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+        # Trả về doanh thu cho ngày hôm nay
+        return Response({
+            'date': today,
+            'revenue': total_revenue,
+        })

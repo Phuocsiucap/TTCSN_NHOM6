@@ -1,4 +1,4 @@
-import requests 
+import requests
 
 # URL của API backend để đăng nhập và nhận token
 login_url = "http://127.0.0.1:8888/api/admin/login/"
@@ -22,7 +22,7 @@ else:
     exit()
 
 # Gửi yêu cầu GET để lấy danh sách người dùng
-admin_api_url = "http://127.0.0.1:8888/api/admin/revenue/monthly/"  # Đảm bảo URL API đúng
+admin_api_url = "http://127.0.0.1:8888/api/admin/today-revenue/"  # Đảm bảo URL API đúng
 
 # Headers với Token của Admin
 headers = {
@@ -33,9 +33,12 @@ headers = {
 # Gửi yêu cầu GET
 response = requests.get(admin_api_url, headers=headers)
 
-# Kiểm tra kết quả
-if response.status_code :
-    print("Danh sách người dùng:", response.json())
+# Kiểm tra nội dung của phản hồi
+if response.status_code == 200:
+    try:
+        data = response.json()  # Chuyển đổi nội dung thành JSON
+        print("Số lượng người dùng:", data)
+    except ValueError:  # Nếu không thể chuyển thành JSON
+        print("Lỗi: Phản hồi không phải dạng JSON:", response.text)
 else:
-    print("Lỗi:", response.status_code)
-
+    print("Lỗi:", response.text)

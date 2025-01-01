@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-z=fzuyb&*q!itxsz@$&mpb=b3t!_#qjtq^p&=9l5@lv*r@6%h-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'Order',
     'rest_framework_simplejwt',
     'Voucher',
-    'Admin'
+    'Admin',
+    'vnpay_python',
 ]
 
 MIDDLEWARE = [
@@ -196,3 +197,11 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
+
+
+
+VNPAY_RETURN_URL = 'http://localhost:8888/order'  # get from config
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'  # get from config
+VNPAY_API_URL = 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction'
+VNPAY_TMN_CODE = 'BXZ1FFWP'  # Website ID in VNPAY System, get from config
+VNPAY_HASH_SECRET_KEY = 'IQO729Q6MAIXXHLH0QHGIERNXYW6DRB0'  # Secret key for create checksum,get from config

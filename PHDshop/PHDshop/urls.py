@@ -32,6 +32,9 @@ urlpatterns = [
 
     # for admin
     path('api/admin/', include('Admin.urls')),
+    
+
+    path('api/vn/', include('vnpay_python.urls'))
 
 ]
 import os

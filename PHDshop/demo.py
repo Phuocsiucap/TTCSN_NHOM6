@@ -1,7 +1,7 @@
 import requests
 
 # URL của API backend để đăng nhập và nhận token
-login_url = "http://127.0.0.1:8888/api/admin/login/"
+login_url = "http://127.0.0.1:1234/api/admin/login/"
 
 # Thông tin đăng nhập của Admin
 login_data = {
@@ -23,7 +23,7 @@ else:
     exit()
 
 # Gửi yêu cầu GET để lấy danh sách người dùng
-admin_api_url = "http://127.0.0.1:8888/api/admin/users/"  # Đảm bảo URL API đúng
+admin_api_url = "http://127.0.0.1:1234/api/admin/users/"  # Đảm bảo URL API đúng
 
 # Headers với Token của Admin
 headers = {

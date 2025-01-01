@@ -9,16 +9,20 @@ from good.serializer import GoodSerializer
 import datetime
 from Cart.models import CartGood
 from Voucher.models import Voucher, VoucherUser
+from vnpay_python.models import Payment
 from Voucher.serializers import * 
 # Đặt hàng (1 hoặc nhiều sản phẩm cùng lúc)
 class CreateOrderAPI(APIView):
     
     def post(self, request):
         user = request.user  # Lấy thông tin người dùng từ user đang đăng nhập
+        order_id = request.data.get('order_id')
+        purchase_date = request.data.get('purchase_date')
         shipping_address = request.data.get('shipping_address')
         cartgoods_id = request.data.get('goods_id')
         voucher_user_id = request.data.get('voucherUserId')
-
+        pay_id = request.data.get('pay_id')
+        pay = get_object_or_404(Payment, id = pay_id)
         if not all([user, shipping_address, cartgoods_id]):
             return Response({"error": "Thiếu thông tin bắt buộc"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -63,10 +67,12 @@ class CreateOrderAPI(APIView):
         print(total_amount)
         # Tạo đơn hàng
         order = Order.objects.create(
-            purchase_date=datetime.date.today(),
+            order_id = order_id,
+            purchase_date=purchase_date,
             shipping_status='Processing',
             total_amount=total_amount,
             shipping_address=shipping_address,
+            pay = pay,
             user=user,
             voucher=voucher,
         )
@@ -159,7 +165,8 @@ class OrderListView(APIView):
         orders = Order.objects.filter(user=request.user)
         order_serializer = OrderSerializer(orders, many=True)
         return Response(order_serializer.data, status=status.HTTP_200_OK)
-    
+
+from django.utils.timezone import now
 class CancelOrderAPI(APIView):
     def post(self, request, id):
         # Lấy thông tin đơn hàng
@@ -182,11 +189,12 @@ class CancelOrderAPI(APIView):
             good.amount += order_good.quantity
             good.save()
 
-        # Xóa các sản phẩm liên quan trong bảng OrderGood
-        order_goods.delete()
+        # # Xóa các sản phẩm liên quan trong bảng OrderGood
+        # order_goods.delete()
 
         # Xóa đơn hàng hoặc cập nhật trạng thái đơn hàng
         order.shipping_status = "Cancelled"
+        order.updated_order_time = now()
         order.save()
 
         return Response({"success": "Đơn hàng đã được hủy thành công."}, status=status.HTTP_200_OK)

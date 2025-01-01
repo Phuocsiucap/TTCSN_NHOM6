@@ -8,23 +8,24 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-class GoodListView(generics.ListCreateAPIView):
+class GoodListView(APIView):
     permission_classes  = [AllowAny]
 
-    queryset = Good.objects.all()
-    serializer_class = GoodSerializer
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
-    filterset_fields = {
-        'brand': ['exact'],
-        'category': ['exact'],
-    }
+    def get(sefl, request):
+  
+        goods = Good.objects.all()
+        serializer_class = GoodSerializer(goods, many = True)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
+   
 
-class GoodDetailView(generics.RetrieveAPIView):
+class GoodDetailView(APIView):
+
     permission_classes  = [AllowAny]
 
-    queryset = Good.objects.all()
-    serializer_class = GoodSerializer
-    lookup_field = 'id'  # Assuming 'id' is the primary key field in your Good mode
+    def get(sefl, request, id):
+        good = Good.objects.get(id=id)
+        serializer_class = GoodSerializer(good)
+        return Response(serializer_class.data, status=status.HTTP_200_OK)
 class GetListViewFromCategory(APIView):
     
    def get(self,request, category_id):

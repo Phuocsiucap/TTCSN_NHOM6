@@ -67,14 +67,9 @@ class CreateOrderAPI(APIView):
         print(total_amount)
         # Tạo đơn hàng
         order = Order.objects.create(
-<<<<<<< HEAD
             order_id = order_id,
             purchase_date=purchase_date,
             shipping_status='Processing',
-=======
-            purchase_date=datetime.date.today(),
-            shipping_status='Chờ xác nhận',
->>>>>>> cdafa0598fb7f5a66316a4dfe448738d2159ae61
             total_amount=total_amount,
             shipping_address=shipping_address,
             pay = pay,

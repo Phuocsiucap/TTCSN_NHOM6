@@ -9,7 +9,6 @@ class Order(models.Model):
     order_id = models.CharField(max_length=100,primary_key=True)
     purchase_date = models.DateTimeField(auto_now=True)
     SHIPPING_STATUS_CHOICES = [
-<<<<<<< HEAD
         ('Processing', 'Processing'),
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
@@ -18,15 +17,6 @@ class Order(models.Model):
     shipping_status = models.CharField(max_length=50, choices=SHIPPING_STATUS_CHOICES, default='Đang xử lý')
     
     
-=======
-        ('Chờ xác nhận', 'Chờ xác nhận'),
-        ('Đã Giao', 'Đã Giao'),
-        ('Đã xác nhận', 'Đã xác nhận'),
-        ('Đang Giao', 'Đang Giao'),
-        ('Đã Hủy', 'Đã Hủy'),
-    ]
-    shipping_status = models.CharField(max_length=50, choices=SHIPPING_STATUS_CHOICES, default='Chờ xác nhận')
->>>>>>> cdafa0598fb7f5a66316a4dfe448738d2159ae61
     total_amount = models.FloatField()
     shipping_address = models.CharField(max_length=100)
     updated_order_time = models.DateTimeField(auto_now=True)

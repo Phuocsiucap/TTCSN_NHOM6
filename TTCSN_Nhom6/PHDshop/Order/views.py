@@ -8,47 +8,73 @@ from .serializers import OrderSerializer, OrderGoodSerializer
 from good.serializer import GoodSerializer
 import datetime
 from Cart.models import CartGood
+from Voucher.models import Voucher, VoucherUser
+from Voucher.serializers import * 
 # Đặt hàng (1 hoặc nhiều sản phẩm cùng lúc)
 class CreateOrderAPI(APIView):
     
-    
     def post(self, request):
         user = request.user  # Lấy thông tin người dùng từ user đang đăng nhập
-        print(request.data)
         shipping_address = request.data.get('shipping_address')
-        goods_data = request.data.get('goods')
+        cartgoods_id = request.data.get('goods_id')
+        voucher_user_id = request.data.get('voucherUserId')
 
-        if not all([user, shipping_address, goods_data]):
+        if not all([user, shipping_address, cartgoods_id]):
             return Response({"error": "Thiếu thông tin bắt buộc"}, status=status.HTTP_400_BAD_REQUEST)
+
+        voucher = None
+        discount_percentage = 0
+        if voucher_user_id != None:
+            print(34)
+            try:
+                voucher_user = get_object_or_404(VoucherUser, pk=voucher_user_id)
+                
+                voucher = get_object_or_404(Voucher, pk=voucher_user.voucher.id)
+                print(voucher)
+                if voucher.quantity <= 0:
+                    return Response({"error": "Voucher đã hết hạn hoặc không có sẵn"}, status=status.HTTP_400_BAD_REQUEST)
+                discount_percentage = voucher.discount_percentage / 100.0  # Giả sử voucher có trường discount_percentage
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         total_amount = 0
         # Kiểm tra số lượng sản phẩm trong kho trước khi tạo đơn hàng
-        for good_data in goods_data:
-            cartgood = get_object_or_404(CartGood, pk=good_data['id'])
+        for id in cartgoods_id:
+            cartgood = get_object_or_404(CartGood, pk=id)
             good = cartgood.good
-            quantity = good_data.get('quantity', 1)
+            quantity = cartgood.quantity  # Assuming quantity is part of CartGood
 
             # Kiểm tra số lượng sản phẩm có đủ không
             if good.amount < quantity:
                 print(good.amount)
                 return Response({"error": f"Sản phẩm {good.goodName} không đủ số lượng trong kho."}, status=status.HTTP_400_BAD_REQUEST)
-            print(good.price)
             total_amount += float(good.price) * quantity
-        print(total_amount )
+
+
+        # Cộng điểm cho người dùng (ví dụ: 1 điểm = 1% tổng số tiền)
+        points_earned = int(total_amount * 0.0001)  # Giả sử 1% tổng giá trị đơn hàng là điểm thưởng
+        user.loyaltyPoints += points_earned
+        print("pluss : " , points_earned, " point")
+        user.save()
+        
+        # Áp dụng phần trăm giảm giá từ voucher
+        if discount_percentage > 0:
+            total_amount *= (1 - discount_percentage)
+        print(total_amount)
         # Tạo đơn hàng
         order = Order.objects.create(
             purchase_date=datetime.date.today(),
             shipping_status='Processing',
             total_amount=total_amount,
             shipping_address=shipping_address,
-            user=user
+            user=user,
+            voucher=voucher,
         )
-
-        # Lưu các sản phẩm trong đơn hàng và giảm số lượng trong kho
-        for good_data in goods_data:
-            cartgood = get_object_or_404(CartGood, pk=good_data['id'])
+        # Lưu các sản phẩm trong đơn hàng và giảm số lượng trong kho, xoa khoi gio hang
+        for id in cartgoods_id:
+            cartgood = get_object_or_404(CartGood, pk=id)
             good = cartgood.good
-            quantity = good_data.get('quantity', 1)
+            quantity = cartgood.quantity  # Assuming quantity is part of CartGood
 
             # Tạo bản ghi trong OrderGood
             OrderGood.objects.create(order=order, good=good, quantity=quantity)
@@ -57,19 +83,53 @@ class CreateOrderAPI(APIView):
             good.amount -= quantity
             good.save()
             cartgood.delete()
-        order_serializer = OrderSerializer(order)
-        return Response(order_serializer.data, status=status.HTTP_201_CREATED)
+
+        if voucher:
+            voucher.quantity -= 1
+            voucher.save()
+            # Optionally, update the voucher status if needed
+            voucher_user.status = 'Expired'
+            voucher_user.save()
+
+        # Cộng điểm cho người dùng (ví dụ: 1 điểm = 1% tổng số tiền)
+        points_earned = int(total_amount * 0.0001)  # Giả sử 1% tổng giá trị đơn hàng là điểm thưởng
+        user.loyaltyPoints += points_earned
+        print("pluss : " , points_earned, " point")
+        user.save()
+
+        
+        return Response("Don hang cua ban da duoc dat thanh cong", status=status.HTTP_201_CREATED)
 
 
+# def patch(self, request, id):
+#         """
+#         API cập nhật trạng thái voucher của người dùng khi sử dụng
+#         """
+#         try:
+#             voucher = Voucher.objects.get(id=id)
+#             if voucher.quantity <= 0:
+#                 return Response({"detail": "Voucher đã hết"}, status=status.HTTP_400_BAD_REQUEST)
 
-# Lấy thông tin đơn hàng 
+
+#             # Pass the data and the voucher instance to the serializer
+#             serializer = VoucherUserSerializer(user = request.user.id , data=request.data)
+            
+#             if serializer.is_valid():
+#                 voucher.quantity -= 1
+#                 voucher.save()
+#                 serializer.save()
+
+#                 return Response({"detail": "Cập nhật thành công"}, status=status.HTTP_200_OK)
+#             else:
+#                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#         except Voucher.DoesNotExist:
+#             return Response({"detail": "Voucher không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
+    
+# Lấy thông tin chi ti-đơn hàng 
 class OrderDetailAPI(APIView):
-    print(3)
-    
-    
     def get(self, request, id):
         # Lấy thông tin đơn hàng dựa trên `pk`
-        print(request.data)
         order = get_object_or_404(Order, order_id=id)
         if order.user != request.user:  # Kiểm tra xem đơn hàng có phải của người dùng hiện tại không
             return Response({"error": "Bạn không có quyền truy cập đơn hàng này."}, status=status.HTTP_403_FORBIDDEN)
@@ -77,14 +137,13 @@ class OrderDetailAPI(APIView):
         order_serializer = OrderSerializer(order)
             # Lấy thông tin của các sản phẩm trong đơn hàng
         order_goods = OrderGood.objects.filter(order=order)
-        print(order)
+       
         order_goods_serializer = OrderGoodSerializer(order_goods, many=True)
         # Lấy danh sách các sản phẩm (Good) liên quan đến đơn hàng từ OrderGood
         goods_in_order = Good.objects.filter(ordergood__order=order).distinct()
 
         # Serialize danh sách sản phẩm
         goods_serializer = GoodSerializer(goods_in_order, many=True)
-        print(goods_serializer)
             # Trả về thông tin đơn hàng và các sản phẩm kèm theo
         response_data = {
             "order": order_serializer.data,
@@ -93,12 +152,14 @@ class OrderDetailAPI(APIView):
         }
         print(response_data)
         return Response(response_data, status=status.HTTP_200_OK)
+    
 class OrderListView(APIView):
     def get(self, request):
         # Lấy tất cả đơn hàng của người dùng hiện tại
         orders = Order.objects.filter(user=request.user)
         order_serializer = OrderSerializer(orders, many=True)
         return Response(order_serializer.data, status=status.HTTP_200_OK)
+    
 class CancelOrderAPI(APIView):
     def post(self, request, id):
         # Lấy thông tin đơn hàng

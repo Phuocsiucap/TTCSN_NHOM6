@@ -45,6 +45,9 @@ class JWTAuthenticationMiddleware:
     def __call__(self, request):
         # Lấy token từ header Authorization
         auth_header = request.headers.get('Authorization')
+        # Kiểm tra nếu là admin API và bỏ qua xác thực
+        if request.path.startswith('/api/admin/'):
+            return self.get_response(request)
 
         if auth_header:
             token = auth_header.split(' ')[1]  # Lấy token từ "Bearer <token>"

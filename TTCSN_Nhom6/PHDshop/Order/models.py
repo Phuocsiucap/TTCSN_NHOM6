@@ -1,7 +1,8 @@
 from django.db import models
-from Models.models import *  # Đảm bảo import này phù hợp với dự án của bạn
 from customer.models import * 
 from good.models import * 
+from django.contrib.auth.models import User as Admin
+from Voucher.models import Voucher
 
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -17,6 +18,7 @@ class Order(models.Model):
     shipping_address = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     admin = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True, blank=True)  # Admin có thể là null
+    voucher = models.ForeignKey(Voucher, on_delete=models.SET_NULL, null=True, blank=True) 
 
 class OrderGood(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

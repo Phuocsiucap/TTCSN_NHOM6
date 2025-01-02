@@ -19,13 +19,25 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user/', include('customer.urls')),
     path('api/goods/', include('good.urls')),
     path('api/cart/', include('Cart.urls')),
     path('api/order/', include('Order.urls')),
+    path('api/vouchers/', include('Voucher.urls')),
+
+
+
+    # for admin
+    path('api/admin/', include('Admin.urls')),
+
 ]
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = '/media/'  # Đường dẫn URL cho file media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Thư mục chứa các file media được tải lên
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
